@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  COACH
+  CLIENT
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
+
+  coachClients  Client[] @relation("CoachClients")
+  clientProfile Client?  @relation("ClientUser")
+}
+
+model Client {
+  id        String   @id @default(uuid())
+  coachId   String
+  userId    String   @unique
+  coach     User     @relation("CoachClients", fields: [coachId], references: [id])
+  user      User     @relation("ClientUser", fields: [userId], references: [id])
+  checkIns  CheckIn[]
+  alerts    Alert[]
+  createdAt DateTime @default(now())
+}
+
+model CheckIn {
+  id                String   @id @default(uuid())
+  clientId          String
+  client            Client   @relation(fields: [clientId], references: [id])
+  weekDate          DateTime
+  weight            Float
+  sleepHours         Float
+  energyScore       Int
+  moodScore         Int
+  workoutsCompleted Int
+  notes             String?
+  createdAt         DateTime @default(now())
+}
+
+model Alert {
+  id        String   @id @default(uuid())
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id])
+  type      String
+  resolved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

@@ -1,10 +1,12 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import testRoutes from "./routes/test.routes";
 
 const app = express();
 
 app.use(express.json());
+app.use("/api/tests", testRoutes);
 
 app.use(
   cors({
