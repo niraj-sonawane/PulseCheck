@@ -1,12 +1,9 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import testRoutes from "./routes/test.routes";
+import authRoutes from "./routes/authRoutes";
 
 const app = express();
-
-app.use(express.json());
-app.use("/api/tests", testRoutes);
 
 app.use(
   cors({
@@ -15,7 +12,10 @@ app.use(
   })
 );
 
+app.use(express.json());
 app.use(cookieParser());
+
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.json({
