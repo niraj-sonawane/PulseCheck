@@ -75,3 +75,10 @@ export const me = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to load user" });
   }
 };
+
+export const logout = async (req: Request, res: Response) => {
+  res
+    .clearCookie("token", cookieOptions())
+    .status(200)
+    .json({ message: "Logged out" });
+};
