@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +34,21 @@ export default function SignupPage() {
           <CardTitle>Create your account</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
+          <Tabs value={role} onValueChange={(v) => setRole(v as "COACH" | "CLIENT")} className="mb-2">
+  <TabsList className="grid w-full grid-cols-2">
+    <TabsTrigger value="COACH">I'm a Coach</TabsTrigger>
+    <TabsTrigger value="CLIENT">I'm a Client</TabsTrigger>
+  </TabsList>
+</Tabs>
+
+<p className={`text-sm mb-2 rounded-lg px-3 py-2 ${
+  role === "COACH" ? "bg-teal-50 text-teal-700" : "bg-blue-50 text-blue-700"
+}`}>
+  {role === "COACH"
+    ? "You'll be able to add clients and see their trends."
+    : "You'll submit weekly check-ins for your coach."
+  }
+</p>
           <div>
             <Label htmlFor="name">Name</Label>
             <Input
