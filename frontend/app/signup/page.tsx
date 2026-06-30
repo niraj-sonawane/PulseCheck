@@ -10,6 +10,19 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { registerUser } from "@/lib/auth";
 
+function getPasswordStrength(pw: string): { label: string; color: string; width: string } {
+  if (pw.length === 0) return { label: "", color: "", width: "0%" };
+  let score = 0;
+  if (pw.length >= 8) score++;
+  if (pw.length >= 12) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  if (score <= 2) return { label: "Weak", color: "bg-red-500", width: "33%" };
+  if (score <= 3) return { label: "Medium", color: "bg-orange-400", width: "66%" };
+  return { label: "Strong", color: "bg-green-500", width: "100%" };
+}
+
 export default function SignupPage() {
   const router = useRouter();
 
@@ -28,7 +41,7 @@ export default function SignupPage() {
       setError(err.response?.data?.message || "Something went wrong.");
     }
   };
-
+const strength = getPasswordStrength(password); //added new line here 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50">
       <Card className="w-full max-w-sm">
@@ -91,6 +104,22 @@ export default function SignupPage() {
       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
     </button>
   </div>
+  {password.length > 0 && (
+  <div className="mt-2 space-y-1">
+    <div className="h-1.5 w-full bg-zinc-200 rounded-full overflow-hidden">
+      <div
+        className={`h-full rounded-full transition-all duration-300 ${strength.color}`}
+        style={{ width: strength.width }}
+      />
+    </div>
+    <p className={`text-xs font-medium ${
+      strength.label === "Strong" ? "text-green-600" :
+      strength.label === "Medium" ? "text-orange-500" : "text-red-500"
+    }`}>
+      {strength.label}
+    </p>
+  </div>
+)}
 </div>
 
           {error && <p className="text-sm text-red-600">{error}</p>}
