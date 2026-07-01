@@ -1,8 +1,9 @@
 "use client";
 
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Activity } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,8 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const strength = getPasswordStrength(password);
+
   const handleSubmit = async () => {
     try {
       await registerUser({ name, email, password, role });
@@ -41,92 +44,118 @@ export default function SignupPage() {
       setError(err.response?.data?.message || "Something went wrong.");
     }
   };
-const strength = getPasswordStrength(password); //added new line here 
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Create your account</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <Tabs value={role} onValueChange={(v) => setRole(v as "COACH" | "CLIENT")} className="mb-2">
-  <TabsList className="grid w-full grid-cols-2">
-    <TabsTrigger value="COACH">I'm a Coach</TabsTrigger>
-    <TabsTrigger value="CLIENT">I'm a Client</TabsTrigger>
-  </TabsList>
-</Tabs>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <header className="bg-white border-b border-gray-200 px-4 py-4">
+        <div className="max-w-md mx-auto">
+          <Link href="/" className="flex items-center gap-2">
+            <Activity className="w-6 h-6 text-teal-600" />
+            <span className="text-xl font-semibold text-gray-900">PulseCheck</span>
+          </Link>
+        </div>
+      </header>
 
-<p className={`text-sm mb-2 rounded-lg px-3 py-2 ${
-  role === "COACH" ? "bg-teal-50 text-teal-700" : "bg-blue-50 text-blue-700"
-}`}>
-  {role === "COACH"
-    ? "You'll be able to add clients and see their trends."
-    : "You'll submit weekly check-ins for your coach."
-  }
-</p>
-          <div>
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your name"
-            />
-          </div>
+      <div className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md">
+          <Card>
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl">Create Account</CardTitle>
+              <p className="text-gray-600 text-sm">Join PulseCheck to get started</p>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <Tabs value={role} onValueChange={(v) => setRole(v as "COACH" | "CLIENT")} className="mb-2">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="COACH">I'm a Coach</TabsTrigger>
+                  <TabsTrigger value="CLIENT">I'm a Client</TabsTrigger>
+                </TabsList>
+              </Tabs>
 
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-            />
-          </div>
+              <p className={`text-sm rounded-lg px-3 py-2 ${
+                role === "COACH" ? "bg-teal-50 text-teal-700" : "bg-blue-50 text-blue-700"
+              }`}>
+                {role === "COACH"
+                  ? "You'll be able to add clients and see their trends."
+                  : "You'll submit weekly check-ins for your coach."
+                }
+              </p>
 
-         <div>
-  <Label htmlFor="password">Password</Label>
-  <div className="relative">
-    <Input
-      id="password"
-      type={showPassword ? "text" : "password"}
-      value={password}
-      onChange={(e) => setPassword(e.target.value)}
-      placeholder="••••••••"
-      className="pr-10"
-    />
-    <button
-      type="button"
-      onClick={() => setShowPassword((v) => !v)}
-      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
-    >
-      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-    </button>
-  </div>
-  {password.length > 0 && (
-  <div className="mt-2 space-y-1">
-    <div className="h-1.5 w-full bg-zinc-200 rounded-full overflow-hidden">
-      <div
-        className={`h-full rounded-full transition-all duration-300 ${strength.color}`}
-        style={{ width: strength.width }}
-      />
-    </div>
-    <p className={`text-xs font-medium ${
-      strength.label === "Strong" ? "text-green-600" :
-      strength.label === "Medium" ? "text-orange-500" : "text-red-500"
-    }`}>
-      {strength.label}
-    </p>
-  </div>
-)}
-</div>
+              <div>
+                <Label htmlFor="name">Full Name</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="John Doe"
+                  className="mt-1.5"
+                />
+              </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="mt-1.5"
+                />
+              </div>
 
-          <Button onClick={handleSubmit}>Sign up</Button>
-        </CardContent>
-      </Card>
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <div className="relative mt-1.5">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                {password.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    <div className="h-1.5 w-full bg-zinc-200 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-300 ${strength.color}`}
+                        style={{ width: strength.width }}
+                      />
+                    </div>
+                    <p className={`text-xs font-medium ${
+                      strength.label === "Strong" ? "text-green-600" :
+                      strength.label === "Medium" ? "text-orange-500" : "text-red-500"
+                    }`}>
+                      {strength.label}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {error && <p className="text-sm text-red-600">{error}</p>}
+
+              <Button onClick={handleSubmit} className="w-full">
+                Create Account
+              </Button>
+            </CardContent>
+          </Card>
+
+          <p className="text-center text-sm text-gray-600 mt-6">
+            Already have an account?{" "}
+            <Link href="/login" className="text-teal-600 hover:text-teal-700 font-medium">
+              Login
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
