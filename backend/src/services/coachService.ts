@@ -38,3 +38,34 @@ export const getCoachClients = async (coachId: string) => {
 function daysSince(date: Date): number {
   return Math.floor((Date.now() - new Date(date).getTime()) / 86400000);
 }
+
+export const addClient = async (coachId: string, clientEmail: string) => {
+  const clientUser = await prisma.user.findUnique({
+    where: { email: clientEmail },
+  });
+
+  if (!clientUser) {
+    throw new Error("No user found with that email");
+  }
+
+  if (clientUser.role !== "CLIENT") {
+    throw new Error("That user is not registered as a client");
+  }
+
+  const existing = await prisma.client.findFirst({
+    where: { coachId, userId: clientUser.id },
+  });
+
+  if (existing) {
+    throw new Error("Client already added");
+  }
+
+  const client = await prisma.client.create({
+    data: {
+      coachId,
+      userId: clientUser.id,
+    },
+  });
+
+  return client;
+};
