@@ -7,8 +7,21 @@ export const registerUser = async (data : {
     email: string;
     password: string;
     role: "COACH" | "CLIENT";
-
 }) => {
+    if (!data.name || data.name.trim() === "") {
+        throw new Error("Name is required");
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!data.email || !emailRegex.test(data.email)) {
+        throw new Error("Invalid email format");
+    }
+    if (!data.password || data.password.length < 6) {
+        throw new Error("Password must be at least 6 characters long");
+    }
+    if (data.role !== "COACH" && data.role !== "CLIENT") {
+        throw new Error("Invalid role selection");
+    }
+
     const existing = await prisma.user.findUnique({
         where: {
             email: data.email

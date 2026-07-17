@@ -30,18 +30,26 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState<"COACH" | "CLIENT">("CLIENT");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const strength = getPasswordStrength(password);
 
   const handleSubmit = async () => {
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+    setError("");
     try {
       await registerUser({ name, email, password, role });
       router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Something went wrong.");
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      setError(axiosErr.response?.data?.message || "Something went wrong.");
     }
   };
 
@@ -66,8 +74,8 @@ export default function SignupPage() {
             <CardContent className="flex flex-col gap-4">
               <Tabs value={role} onValueChange={(v) => setRole(v as "COACH" | "CLIENT")} className="mb-2">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="COACH">I'm a Coach</TabsTrigger>
-                  <TabsTrigger value="CLIENT">I'm a Client</TabsTrigger>
+                  <TabsTrigger value="COACH">I&apos;m a Coach</TabsTrigger>
+                  <TabsTrigger value="CLIENT">I&apos;m a Client</TabsTrigger>
                 </TabsList>
               </Tabs>
 
@@ -138,6 +146,27 @@ export default function SignupPage() {
                     </p>
                   </div>
                 )}
+              </div>
+
+              <div>
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <div className="relative mt-1.5">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
 
               {error && <p className="text-sm text-red-600">{error}</p>}

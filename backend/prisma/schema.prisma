@@ -32,6 +32,8 @@ model Client {
   checkIns  CheckIn[]
   alerts    Alert[]
   createdAt DateTime @default(now())
+
+  @@index([coachId])
 }
 
 model CheckIn {
@@ -46,6 +48,9 @@ model CheckIn {
   workoutsCompleted Int
   notes             String?
   createdAt         DateTime @default(now())
+
+  @@index([clientId])
+  @@index([weekDate])
 }
 
 model Alert {

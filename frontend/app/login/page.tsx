@@ -23,8 +23,9 @@ export default function LoginPage() {
     try {
       await loginUser({ email, password });
       router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Invalid email or password.");
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      setError(axiosErr.response?.data?.message || "Invalid email or password.");
     }
   };
 
@@ -96,7 +97,7 @@ export default function LoginPage() {
               </Button>
 
               <p className="text-center text-sm text-gray-600">
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <Link href="/signup" className="text-teal-600 hover:text-teal-700 font-medium">
                   Sign up
                 </Link>
