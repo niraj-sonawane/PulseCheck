@@ -29,18 +29,24 @@ app.use(
 // 2. CORS must be before the rate limiter.
 //    When the rate limiter sends a 429, CORS headers must already be set
 //    otherwise the browser swallows the response and the user sees nothing.
+//
+//    CLIENT_URL supports multiple comma-separated origins, e.g.:
+//    CLIENT_URL=https://pulsecheck.vercel.app,https://pulsecheck-git-main.vercel.app
 app.use(
   cors({
     origin: (origin, callback) => {
-      const allowed = process.env.CLIENT_URL || "http://localhost:3000";
-      // Allow server-to-server requests (no origin) and the configured client
-      if (!origin || origin === allowed) {
+      const raw = process.env.CLIENT_URL || "http://localhost:3000";
+      const allowed = raw.split(",").map((u) => u.trim());
+      // Allow server-to-server requests (no origin header) and any configured client origin
+      if (!origin || allowed.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS"));
+        callback(new Error(`CORS: origin '${origin}' is not allowed`));
       }
     },
-    credentials: true,
+    credentials: true,            // Required for cross-origin cookies
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 

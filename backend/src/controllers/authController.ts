@@ -2,12 +2,18 @@ import { Request, Response } from "express";
 import { generateToken } from "../services/tokenService";
 import { registerUser, loginUser } from "../services/authService";
 import { prisma } from "../config/prisma";
-const cookieOptions = () => ({
+const cookieOptions = () => {
+  const isProd = process.env.NODE_ENV === "production";
+  return {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict" as const,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-});
+    // SameSite=none is required for cross-origin cookie delivery (Vercel → Render).
+    // SameSite=none MUST be paired with Secure=true (HTTPS only).
+    // In local development we use lax + non-secure so cookies still work on http://localhost.
+    secure: isProd,
+    sameSite: (isProd ? "none" : "lax") as "none" | "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
+  };
+};
 
 
 export const register = async (req: Request, res: Response) => {
