@@ -2,33 +2,30 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /**
-   * Rewrite all /api/* requests through the Next.js server to the Express backend.
+   * Proxy all /api/* requests through the Next.js server to the Express backend.
    *
-   * WHY THIS EXISTS:
-   * Without this, the browser makes requests directly from pulsecheck.vercel.app
-   * to pulsecheck.onrender.com — a cross-origin request. Browsers block
-   * cross-origin cookies (SameSite restrictions, third-party cookie phase-out).
+   * WHY: Vercel (frontend) and Render (backend) are different domains.
+   * Browsers block cookies on cross-origin requests (SameSite policy,
+   * third-party cookie deprecation). This rewrite makes every API call
+   * appear same-origin to the browser — the cookie is stored for the
+   * Vercel domain and sent automatically on every subsequent request.
    *
-   * WITH this rewrite:
-   * - Browser requests go to pulsecheck.vercel.app/api/* (same origin)
-   * - Next.js server-side proxies them to the Express backend on Render
-   * - The JWT cookie is attributed to pulsecheck.vercel.app (first-party)
-   * - The browser sends the cookie on every subsequent request automatically
-   * - No SameSite issues, no third-party cookie blocks
+   * HOW IT USES YOUR EXISTING ENV VAR:
+   * NEXT_PUBLIC_API_URL=https://pulsecheck-flfd.onrender.com/api
+   * This strips the /api suffix → https://pulsecheck-flfd.onrender.com
+   * Then rewrites /api/:path* → https://pulsecheck-flfd.onrender.com/api/:path*
    *
-   * ENVIRONMENT VARIABLE:
-   * Set BACKEND_URL in Vercel dashboard:
-   *   BACKEND_URL=https://pulsecheck-flfd.onrender.com
-   *
-   * For local development, set in .env.local:
-   *   BACKEND_URL=http://localhost:5000
+   * No new environment variables are needed.
    */
   async rewrites() {
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    // Strip trailing /api (with or without trailing slash)
+    const backendBase = apiUrl.replace(/\/api\/?$/, "");
     return [
       {
         source: "/api/:path*",
-        destination: `${backendUrl}/api/:path*`,
+        destination: `${backendBase}/api/:path*`,
       },
     ];
   },

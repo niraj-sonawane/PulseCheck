@@ -1,15 +1,12 @@
 import axios from "axios";
 
 /**
- * All API requests use a relative /api base URL.
+ * All API calls use a relative /api path.
  *
- * In production:  Next.js rewrites /api/* → Render backend (see next.config.ts)
- *                 Cookie is stored for pulsecheck.vercel.app (first-party, same-origin)
- *
- * In development: Next.js rewrites /api/* → http://localhost:5000/api/*
- *                 Cookie is stored for localhost (same-origin)
- *
- * withCredentials: true ensures the cookie is included on every request.
+ * next.config.ts rewrites /api/* → Express backend (Render) via the Next.js server.
+ * This means every request is same-origin from the browser's perspective.
+ * The JWT cookie is stored for the Vercel domain (first-party) and sent
+ * automatically — no cross-origin cookie issues, no SameSite restrictions.
  */
 export const api = axios.create({
   baseURL: "/api",
